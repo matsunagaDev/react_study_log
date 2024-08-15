@@ -1,35 +1,80 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+export const App = () => {
+  const [inputLearningContext, setInputLearningContext] = useState('');
+  const [inputTime, setInputTime] = useState('');
+  const [records, setRecords] = useState([]);
+  const onChangeLearningContext = (event) =>
+    setInputLearningContext(event.target.value);
+  const onChangeTime = (event) => setInputTime(event.target.value);
+  const [error, setError] = useState(false);
+  const [sumTime, setSumTime] = useState(0);
+
+  const onClickAdd = () => {
+    // 入力項目が空の場合
+    if (!inputLearningContext || !inputTime) {
+      setError(true);
+      return;
+    }
+    // エラーメッセージを非表示
+    setError(false);
+
+    const newRecords = {
+      title: inputLearningContext,
+      time: parseInt(inputTime),
+    };
+
+    // 新しいレコードを追加
+    const updateRecords = [...records, newRecords];
+    setRecords(updateRecords);
+
+    // 合計時間を計算
+    let total = updateRecords.reduce(
+      (sum, current) => parseInt(sum) + parseInt(current.time),
+      0
+    );
+    setSumTime(total);
+
+    // 入力項目をリセット
+    setInputLearningContext('');
+    setInputTime(0);
+  };
 
   return (
     <>
+      <h1>学習記録一覧</h1>
       <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        学習内容
+        <input
+          type="text"
+          value={inputLearningContext}
+          onChange={onChangeLearningContext}
+        />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+      <div>
+        学習時間
+        <input type="number" value={inputTime} onChange={onChangeTime} />
+        時間
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+      <div>
+        <p>入力されている学習内容：{inputLearningContext}</p>
+        <p>入力されている時間：{inputTime}時間</p>
+      </div>
+      <hr />
+      {records.map((record, index) => {
+        return (
+          <p key={index}>
+            {record.title} {record.time}時間
+          </p>
+        );
+      })}
 
-export default App
+      <div>
+        <button onClick={onClickAdd}>登録</button>
+      </div>
+      {error && <p style={{ color: 'red' }}>入力されていない項目があります</p>}
+      <p>合計時間：{sumTime}/1000(h)</p>
+    </>
+  );
+};
